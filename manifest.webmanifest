@@ -1,0 +1,26 @@
+{
+    "name": "LeadStar",
+    "short_name": "LeadStar",
+    "description": "Enterprise lead extraction infrastructure",
+    "start_url": "/leadstar/",
+    "display": "standalone",
+    "background_color": "#0B1020",
+    "theme_color": "#0B1020",
+    "icons": [
+        {
+            "src": "/leadstar/assets/images/leadstar-16.png",
+            "sizes": "16x16",
+            "type": "image/png"
+        },
+        {
+            "src": "/leadstar/assets/images/leadstar-48.png",
+            "sizes": "48x48",
+            "type": "image/png"
+        },
+        {
+            "src": "/leadstar/assets/images/leadstar-128.png",
+            "sizes": "128x128",
+            "type": "image/png"
+        }
+    ]
+}

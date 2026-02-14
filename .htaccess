@@ -1,0 +1,41 @@
+﻿RewriteEngine On
+RewriteBase /leadstar/
+
+# Canonical: remove trailing slash for non-directories
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.+)/$ /leadstar/$1 [R=301,L]
+
+# Pretty routes for LeadStar product pages
+RewriteRule ^$ index.php [L,QSA]
+RewriteRule ^pricing/?$ pricing.php [L,QSA]
+RewriteRule ^docs/?$ docs.php [L,QSA]
+RewriteRule ^privacy/?$ privacy.php [L,QSA]
+RewriteRule ^terms/?$ terms.php [L,QSA]
+RewriteRule ^sign/?$ sign.php [L,QSA]
+RewriteRule ^account/?$ account.php [L,QSA]
+RewriteRule ^auth/?$ auth.php [L,QSA]
+RewriteRule ^company/?$ company.php [L,QSA]
+RewriteRule ^products/?$ products.php [L,QSA]
+RewriteRule ^status/?$ status.php [L,QSA]
+RewriteRule ^blog/?$ blog/index.php [L,QSA]
+RewriteRule ^support/?$ support/index.php [L,QSA]
+
+# Fallback to homepage for unknown non-file/non-dir routes
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L,QSA]
+
+# Security headers
+Header set X-Content-Type-Options "nosniff"
+Header set X-Frame-Options "DENY"
+Header set X-XSS-Protection "1; mode=block"
+Header set Referrer-Policy "strict-origin-when-cross-origin"
+Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://rspvhpcezswfvsjbbofo.supabase.co;"
+
+# Compression
+AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json
+
+# Cache control
+<FilesMatch "\.(ico|pdf|jpg|jpeg|png|webp|svg|woff2)$">
+    Header set Cache-Control "max-age=31536000, public"
+</FilesMatch>
