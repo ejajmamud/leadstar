@@ -44,6 +44,12 @@ body {
   min-height: 100vh;
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 .bg {
   position: fixed;
   inset: 0;
@@ -138,6 +144,7 @@ body {
   align-items: center;
   justify-content: space-between;
   height: 75px;
+  gap: 1rem;
 }
 
 .brand {
@@ -205,6 +212,7 @@ body {
   align-items: center;
   gap: 2rem;
   font-family: 'Inter', sans-serif;
+  min-width: 0;
 }
 
 .nav-link {
@@ -275,6 +283,7 @@ body {
   border-radius: 999px;
   padding: 0.28rem 0.65rem;
   white-space: nowrap;
+  max-width: 100%;
 }
 
 .profile-toggle {
@@ -665,6 +674,10 @@ h1 {
   margin-bottom: 1.8rem;
 }
 
+.card-head > * {
+  min-width: 0;
+}
+
 .card-title {
   font-weight: 700;
   font-size: 1.5rem;
@@ -678,6 +691,8 @@ h1 {
   font-family: var(--font-mono);
   white-space: nowrap;
   align-self: flex-start;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .steps {
@@ -739,13 +754,13 @@ h1 {
 
 .grid3 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
   gap: 2rem;
 }
 
 .grid2 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: 2rem;
 }
 
@@ -863,7 +878,7 @@ h1 {
 
 .faq-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
   gap: 2rem;
   margin-top: 1.5rem;
 }
@@ -1003,5 +1018,22 @@ code {
 
   .pill {
     white-space: normal;
+  }
+}
+
+@media (max-width: 1200px) {
+  .nav {
+    gap: 1.2rem;
+  }
+
+  .topbar-plan-badge {
+    padding: 0.22rem 0.5rem;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .topbar-plan-badge {
+    display: none;
   }
 }
