@@ -2,7 +2,6 @@
 require_once 'header-functions.php';
 require_once __DIR__ . '/includes/config.php';
 
-$adminUpgradeEnabled = UPGRADE_ADMIN_KEY !== '';
 page_header('LeadStar - Account', $_SERVER['REQUEST_URI'] ?? '/account');
 ?>
 
@@ -30,29 +29,9 @@ page_header('LeadStar - Account', $_SERVER['REQUEST_URI'] ?? '/account');
             </div>
             <div class="sign-actions">
                 <a class="btn primary full" href="<?= h(UPGRADE_URL) ?>">Go Pro</a>
-                <?php if ($adminUpgradeEnabled): ?>
-                    <button type="button" class="btn ghost full" data-toggle-admin>Admin Upgrade</button>
-                <?php else: ?>
-                    <a class="btn ghost full" href="<?= h(leadstar_url('/support')) ?>">Contact Support</a>
-                <?php endif; ?>
+                <a class="btn ghost full" href="<?= h(leadstar_url('/support')) ?>">Contact Support</a>
             </div>
         </article>
-
-        <?php if ($adminUpgradeEnabled): ?>
-        <article class="glass page-card" data-admin-upgrade hidden>
-            <h2>Admin Upgrade</h2>
-            <p class="muted">Admin mode only. Plan changes are verified server-side.</p>
-            <label class="sign-label" for="adminUpgradeKey">Admin Upgrade Key</label>
-            <input class="sign-input" type="password" id="adminUpgradeKey" placeholder="Enter admin key" />
-            <label class="sign-label" for="proExpiry">Pro Expiry (optional)</label>
-            <input class="sign-input" type="datetime-local" id="proExpiry" />
-            <div class="sign-actions">
-                <button type="button" class="btn primary full" data-admin-upgrade-btn>Set Pro Plan</button>
-                <button type="button" class="btn ghost full" data-refresh-plan>Refresh Status</button>
-            </div>
-            <p class="sign-msg muted" data-admin-message>Enter key and set plan.</p>
-        </article>
-        <?php endif; ?>
     </div>
 </section>
 
@@ -61,8 +40,6 @@ window.LEADSTAR_WEB_CONFIG = {
   supabaseUrl: <?= json_encode(SUPABASE_URL, JSON_UNESCAPED_SLASHES) ?>,
   supabaseAnonKey: <?= json_encode(SUPABASE_ANON_KEY, JSON_UNESCAPED_SLASHES) ?>,
   siteBase: <?= json_encode(leadstar_cta_url('/'), JSON_UNESCAPED_SLASHES) ?>,
-  adminUpgradeEnabled: <?= $adminUpgradeEnabled ? 'true' : 'false' ?>,
-  adminUpgradeKey: <?= json_encode(UPGRADE_ADMIN_KEY, JSON_UNESCAPED_SLASHES) ?>,
   upgradeUrl: <?= json_encode(UPGRADE_URL, JSON_UNESCAPED_SLASHES) ?>
 };
 </script>
