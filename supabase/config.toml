@@ -1,0 +1,7 @@
+# Function-level runtime config
+
+[functions.create_checkout]
+verify_jwt = false
+
+[functions.stripe_webhook]
+verify_jwt = false
