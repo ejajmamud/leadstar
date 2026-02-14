@@ -54,6 +54,31 @@
       throw new Error('Checkout configuration missing');
     }
 
+    let accessToken = session.access_token;
+    if (session.refresh_token) {
+      const refreshResp = await fetch(supabaseUrl + '/auth/v1/token?grant_type=refresh_token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': supabaseAnonKey
+        },
+        body: JSON.stringify({ refresh_token: session.refresh_token })
+      });
+      if (refreshResp.ok) {
+        const refreshed = await refreshResp.json().catch(function() { return null; });
+        if (refreshed && refreshed.access_token) {
+          accessToken = refreshed.access_token;
+          localStorage.setItem(SESSION_KEY, JSON.stringify({
+            access_token: refreshed.access_token,
+            refresh_token: refreshed.refresh_token || session.refresh_token || '',
+            expires_at: refreshed.expires_at ? String(refreshed.expires_at) : '',
+            email: (refreshed.user && refreshed.user.email) ? refreshed.user.email : (session.email || ''),
+            name: session.name || ''
+          }));
+        }
+      }
+    }
+
     const controller = new AbortController();
     const timer = setTimeout(function() { controller.abort(); }, 15000);
     const resp = await fetch(supabaseUrl + '/functions/v1/create_checkout', {
@@ -61,7 +86,7 @@
       headers: {
         'Content-Type': 'application/json',
         'apikey': supabaseAnonKey,
-        'Authorization': 'Bearer ' + session.access_token
+        'Authorization': 'Bearer ' + accessToken
       },
       body: JSON.stringify({}),
       signal: controller.signal
