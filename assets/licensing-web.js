@@ -374,6 +374,8 @@
       btn.setAttribute('data-loading', 'true');
 
       try {
+        const controller = new AbortController();
+        const timer = setTimeout(function() { controller.abort(); }, 15000);
         const resp = await fetch(supabaseUrl + '/functions/v1/create_checkout', {
           method: 'POST',
           headers: {
@@ -381,7 +383,10 @@
             'apikey': supabaseAnonKey,
             'Authorization': 'Bearer ' + state.session.access_token
           },
-          body: JSON.stringify({})
+          body: JSON.stringify({}),
+          signal: controller.signal
+        }).finally(function() {
+          clearTimeout(timer);
         });
 
         const body = await resp.json().catch(function() { return {}; });
@@ -391,6 +396,7 @@
 
         window.location.href = body.url;
       } catch (err) {
+        console.error('Checkout failed', err);
         setMessage(err && err.message ? err.message : 'Payment is unavailable right now.', true);
         btn.textContent = originalText || 'Go Pro';
         btn.removeAttribute('aria-busy');

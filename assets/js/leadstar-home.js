@@ -54,6 +54,8 @@
       throw new Error('Checkout configuration missing');
     }
 
+    const controller = new AbortController();
+    const timer = setTimeout(function() { controller.abort(); }, 15000);
     const resp = await fetch(supabaseUrl + '/functions/v1/create_checkout', {
       method: 'POST',
       headers: {
@@ -61,7 +63,10 @@
         'apikey': supabaseAnonKey,
         'Authorization': 'Bearer ' + session.access_token
       },
-      body: JSON.stringify({})
+      body: JSON.stringify({}),
+      signal: controller.signal
+    }).finally(function() {
+      clearTimeout(timer);
     });
 
     const body = await resp.json().catch(function() { return {}; });
@@ -84,9 +89,11 @@
         btn.setAttribute('aria-busy', 'true');
         try {
           await startCheckout();
-        } catch (_) {
+        } catch (err) {
+          console.error('Checkout failed', err);
           btn.textContent = text || 'Go Pro';
           btn.removeAttribute('aria-busy');
+          window.alert('Could not start checkout right now. Please try again.');
         }
       });
     });
