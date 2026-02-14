@@ -13,6 +13,10 @@ const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
 });
 
 Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { status: 204, headers: corsHeaders() });
+  }
+
   if (req.method !== 'POST') {
     return json({ ok: false, error: 'Method not allowed' }, 405);
   }
@@ -64,8 +68,15 @@ function json(data: unknown, status = 200): Response {
     status,
     headers: {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-admin-key'
+      ...corsHeaders()
     }
   });
+}
+
+function corsHeaders(): HeadersInit {
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-admin-key',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS'
+  };
 }

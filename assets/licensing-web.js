@@ -219,7 +219,12 @@
       .single();
 
     if (error) {
-      throw new Error(error.message || 'Could not read profile');
+      return {
+        plan: 'free',
+        pro_expires_at: null,
+        last_verified_at: null,
+        usage_today: null
+      };
     }
 
     return {
