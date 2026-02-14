@@ -31,6 +31,67 @@
     return window.location.pathname.startsWith('/leadstar/') || window.location.pathname === '/leadstar' ? '/leadstar' : '';
   }
 
+  function getSignInUrl() {
+    const cfg = window.LEADSTAR_WEB_CONFIG || {};
+    if (cfg.siteBase) {
+      return String(cfg.siteBase).replace(/\/+$/, '') + '/sign';
+    }
+    return basePath() + '/sign';
+  }
+
+  async function startCheckout() {
+    const cfg = window.LEADSTAR_WEB_CONFIG || {};
+    const supabaseUrl = cfg.supabaseUrl || '';
+    const supabaseAnonKey = cfg.supabaseAnonKey || '';
+    const session = getSession();
+
+    if (!session || !session.access_token) {
+      window.location.href = getSignInUrl();
+      return;
+    }
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error('Checkout configuration missing');
+    }
+
+    const resp = await fetch(supabaseUrl + '/functions/v1/create_checkout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': supabaseAnonKey,
+        'Authorization': 'Bearer ' + session.access_token
+      },
+      body: JSON.stringify({})
+    });
+
+    const body = await resp.json().catch(function() { return {}; });
+    if (!resp.ok || !body.url) {
+      throw new Error(body.error || 'Could not create checkout session');
+    }
+
+    window.location.href = body.url;
+  }
+
+  function initUpgradeButtons() {
+    const buttons = document.querySelectorAll('[data-upgrade]');
+    buttons.forEach(function(btn) {
+      if (btn.dataset.upgradeBound === '1') return;
+      btn.dataset.upgradeBound = '1';
+      btn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        const text = btn.textContent;
+        btn.textContent = 'Redirecting...';
+        btn.setAttribute('aria-busy', 'true');
+        try {
+          await startCheckout();
+        } catch (_) {
+          btn.textContent = text || 'Go Pro';
+          btn.removeAttribute('aria-busy');
+        }
+      });
+    });
+  }
+
   function initProfileUI() {
     const session = getSession();
     const signInLinks = document.querySelectorAll('[data-signin-link], [data-drawer-signin]');
@@ -114,6 +175,7 @@
   }
 
   initProfileUI();
+  initUpgradeButtons();
 })();
 
 (function() {

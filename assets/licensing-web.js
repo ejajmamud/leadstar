@@ -357,6 +357,8 @@
 
   const upgradeButtons = document.querySelectorAll('[data-upgrade]');
   upgradeButtons.forEach(function(btn) {
+    if (btn.dataset.upgradeBound === '1') return;
+    btn.dataset.upgradeBound = '1';
     btn.addEventListener('click', async function(ev) {
       ev.preventDefault();
 
