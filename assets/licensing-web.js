@@ -116,6 +116,7 @@
   const adminUpgradeEnabled = !!cfg.adminUpgradeEnabled;
   const adminUpgradeKey = cfg.adminUpgradeKey || '';
   const siteBase = cfg.siteBase || '/leadstar/';
+  const signInUrl = (siteBase || '/leadstar/').replace(/\/+$/, '') + '/sign';
 
   if (!supabaseUrl || !supabaseAnonKey || !window.supabase || !window.supabase.createClient) {
     setMessage('Dashboard configuration is missing.', true);
@@ -353,6 +354,48 @@
       runAdminUpgrade();
     });
   }
+
+  const upgradeButtons = document.querySelectorAll('[data-upgrade]');
+  upgradeButtons.forEach(function(btn) {
+    btn.addEventListener('click', async function(ev) {
+      ev.preventDefault();
+
+      const state = await renderStatus();
+      if (!state || !state.session || !state.session.access_token) {
+        window.location.href = signInUrl;
+        return;
+      }
+
+      const originalText = btn.textContent;
+      btn.textContent = 'Redirecting...';
+      btn.setAttribute('aria-busy', 'true');
+      btn.setAttribute('data-loading', 'true');
+
+      try {
+        const resp = await fetch(supabaseUrl + '/functions/v1/create_checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': supabaseAnonKey,
+            'Authorization': 'Bearer ' + state.session.access_token
+          },
+          body: JSON.stringify({})
+        });
+
+        const body = await resp.json().catch(function() { return {}; });
+        if (!resp.ok || !body.url) {
+          throw new Error(body.error || 'Could not create checkout session');
+        }
+
+        window.location.href = body.url;
+      } catch (err) {
+        setMessage(err && err.message ? err.message : 'Payment is unavailable right now.', true);
+        btn.textContent = originalText || 'Go Pro';
+        btn.removeAttribute('aria-busy');
+        btn.removeAttribute('data-loading');
+      }
+    });
+  });
 
   renderStatus();
 })();

@@ -28,7 +28,7 @@ page_header('LeadStar - Account', $_SERVER['REQUEST_URI'] ?? '/account');
                 <button type="button" class="btn ghost full" data-signout>Sign Out</button>
             </div>
             <div class="sign-actions">
-                <a class="btn primary full" href="<?= h(UPGRADE_URL) ?>">Go Pro</a>
+                <a class="btn primary full" href="<?= h(UPGRADE_URL) ?>" data-upgrade>Go Pro</a>
                 <a class="btn ghost full" href="<?= h(leadstar_url('/support')) ?>">Contact Support</a>
             </div>
         </article>

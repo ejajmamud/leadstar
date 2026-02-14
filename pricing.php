@@ -39,7 +39,7 @@ page_header('LeadStar - Pricing', $_SERVER['REQUEST_URI'] ?? '/pricing');
                 <li>Automation workflows</li>
                 <li>Priority product updates</li>
             </ul>
-            <a class="btn primary full" href="<?= h(leadstar_sign_in_url()) ?>" target="_blank" rel="noopener noreferrer">Upgrade to Pro</a>
+            <a class="btn primary full" href="<?= h(UPGRADE_URL) ?>" data-upgrade>Upgrade to Pro</a>
         </article>
     </div>
 </section>
