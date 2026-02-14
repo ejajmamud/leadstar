@@ -76,7 +76,7 @@ function leadstar_cta(string $path, string $ctaBase): string {
             <div class="profile-name" data-profile-name>User</div>
             <div class="profile-email" data-profile-email></div>
           </div>
-          <a href="<?php echo htmlspecialchars(leadstar_href('/account', $base), ENT_QUOTES, 'UTF-8'); ?>">My Account</a>
+          <a href="<?php echo htmlspecialchars(leadstar_href('/account/', $base), ENT_QUOTES, 'UTF-8'); ?>">My Account</a>
           <a href="<?php echo htmlspecialchars(leadstar_href('/docs', $base), ENT_QUOTES, 'UTF-8'); ?>">Documentation</a>
           <a href="<?php echo htmlspecialchars(leadstar_href('/pricing', $base), ENT_QUOTES, 'UTF-8'); ?>">Plan & Billing</a>
           <a href="<?php echo htmlspecialchars(leadstar_href('/support', $base), ENT_QUOTES, 'UTF-8'); ?>">Support</a>
@@ -113,7 +113,7 @@ function leadstar_cta(string $path, string $ctaBase): string {
       <div class="drawer-foot">
         <a class="btn primary full" href="<?php echo htmlspecialchars(leadstar_cta('/pricing', $ctaBase), ENT_QUOTES, 'UTF-8'); ?>" data-upgrade>Go Pro</a>
         <a class="btn ghost full" href="<?php echo htmlspecialchars($signInUrl, ENT_QUOTES, 'UTF-8'); ?>" data-drawer-signin>Sign In</a>
-        <a class="btn ghost full" href="<?php echo htmlspecialchars(leadstar_href('/account', $base), ENT_QUOTES, 'UTF-8'); ?>" data-drawer-profile hidden>Account Settings</a>
+        <a class="btn ghost full" href="<?php echo htmlspecialchars(leadstar_href('/account/', $base), ENT_QUOTES, 'UTF-8'); ?>" data-drawer-profile hidden>Account Settings</a>
         <button type="button" class="btn ghost full" data-signout data-drawer-profile hidden>Sign Out</button>
       </div>
     </div>

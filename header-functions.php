@@ -117,7 +117,7 @@ function page_header(string $title, string $path = ''): void {
             <div class="profile-name" data-profile-name>User</div>
             <div class="profile-email" data-profile-email></div>
           </div>
-          <a href="<?= h(leadstar_url('/account')) ?>">My Account</a>
+          <a href="<?= h(leadstar_url('/account/')) ?>">My Account</a>
           <a href="<?= h(leadstar_url('/docs')) ?>">Documentation</a>
           <a href="<?= h(leadstar_url('/pricing')) ?>">Plan & Billing</a>
           <a href="<?= h(leadstar_url('/support')) ?>">Support</a>
@@ -156,7 +156,7 @@ function page_header(string $title, string $path = ''): void {
       <div class="drawer-foot">
         <a class="btn primary full" href="<?= h(leadstar_cta_url('/pricing')) ?>" data-upgrade>Go Pro</a>
         <a class="btn ghost full" href="<?= h(leadstar_sign_in_url()) ?>" data-drawer-signin>Sign In</a>
-        <a class="btn ghost full" href="<?= h(leadstar_url('/account')) ?>" data-drawer-profile hidden>Account Settings</a>
+        <a class="btn ghost full" href="<?= h(leadstar_url('/account/')) ?>" data-drawer-profile hidden>Account Settings</a>
         <button type="button" class="btn ghost full" data-signout data-drawer-profile hidden>Sign Out</button>
       </div>
     </div>
