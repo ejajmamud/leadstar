@@ -211,6 +211,29 @@
 })();
 
 (function() {
+  function syncTopbarFromSession(session) {
+    const signInLinks = document.querySelectorAll('[data-signin-link], [data-drawer-signin]');
+    const profileShells = document.querySelectorAll('[data-profile-shell]');
+    const drawerProfileItems = document.querySelectorAll('[data-drawer-profile]');
+    const emails = document.querySelectorAll('[data-profile-email]');
+    const names = document.querySelectorAll('[data-profile-name]');
+    const initials = document.querySelectorAll('[data-profile-initial]');
+
+    if (!session || !session.access_token) return;
+
+    signInLinks.forEach(function(el) { el.hidden = true; });
+    profileShells.forEach(function(el) { el.hidden = false; });
+    drawerProfileItems.forEach(function(el) { el.hidden = false; });
+
+    const email = session.email || '';
+    const name = session.name || (email ? email.split('@')[0] : 'User');
+    const initial = (name[0] || 'U').toUpperCase();
+
+    emails.forEach(function(el) { el.textContent = email; });
+    names.forEach(function(el) { el.textContent = name; });
+    initials.forEach(function(el) { el.textContent = initial; });
+  }
+
   const path = window.location.pathname;
   const isAuthRoute = path.endsWith('/auth') || path.endsWith('/leadstar/auth');
 
@@ -248,6 +271,12 @@
       email: payload.email || '',
       name: payload.user_metadata && payload.user_metadata.full_name ? payload.user_metadata.full_name : ''
     }));
+
+    syncTopbarFromSession({
+      access_token: accessToken,
+      email: payload.email || '',
+      name: payload.user_metadata && payload.user_metadata.full_name ? payload.user_metadata.full_name : ''
+    });
 
     dot.classList.add('ok');
     title.textContent = 'Sign-in complete';
