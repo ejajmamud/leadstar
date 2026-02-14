@@ -99,6 +99,17 @@
     localStorage.removeItem(SESSION_KEY);
   }
 
+  function decodeJwtPayload(token) {
+    if (!token) return {};
+    try {
+      const part = token.split('.')[1] || '';
+      const normalized = part.replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(atob(normalized));
+    } catch (_) {
+      return {};
+    }
+  }
+
   const cfg = window.LEADSTAR_WEB_CONFIG || {};
   const supabaseUrl = cfg.supabaseUrl || '';
   const supabaseAnonKey = cfg.supabaseAnonKey || '';
@@ -116,28 +127,64 @@
   async function hydrateSession() {
     const local = readLocalSession();
     if (local && local.access_token && local.refresh_token) {
-      await client.auth.setSession({
-        access_token: local.access_token,
-        refresh_token: local.refresh_token
-      });
+      try {
+        await client.auth.setSession({
+          access_token: local.access_token,
+          refresh_token: local.refresh_token
+        });
+      } catch (_) {
+        // keep local fallback path below
+      }
     }
 
     const { data } = await client.auth.getSession();
-    if (!data || !data.session) return null;
+    if (data && data.session && data.session.user) {
+      try {
+        localStorage.setItem(SESSION_KEY, JSON.stringify({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token || '',
+          expires_at: data.session.expires_at ? String(data.session.expires_at) : '',
+          email: data.session.user && data.session.user.email ? data.session.user.email : '',
+          name: data.session.user && data.session.user.user_metadata && (data.session.user.user_metadata.full_name || data.session.user.user_metadata.name) ? (data.session.user.user_metadata.full_name || data.session.user.user_metadata.name) : ''
+        }));
+      } catch (_) {
+        // ignore storage failures
+      }
 
-    try {
-      localStorage.setItem(SESSION_KEY, JSON.stringify({
-        access_token: data.session.access_token,
-        refresh_token: data.session.refresh_token || '',
-        expires_at: data.session.expires_at ? String(data.session.expires_at) : '',
-        email: data.session.user && data.session.user.email ? data.session.user.email : '',
-        name: data.session.user && data.session.user.user_metadata && (data.session.user.user_metadata.full_name || data.session.user.user_metadata.name) ? (data.session.user.user_metadata.full_name || data.session.user.user_metadata.name) : ''
-      }));
-    } catch (_) {
-      // ignore storage failures
+      return data.session;
     }
 
-    return data.session;
+    if (local && local.access_token) {
+      try {
+        const userResp = await client.auth.getUser(local.access_token);
+        if (userResp && userResp.data && userResp.data.user) {
+          return {
+            access_token: local.access_token,
+            refresh_token: local.refresh_token || '',
+            user: userResp.data.user
+          };
+        }
+      } catch (_) {
+        // ignore and fallback to decoded token below
+      }
+
+      const payload = decodeJwtPayload(local.access_token);
+      if (payload && payload.sub) {
+        return {
+          access_token: local.access_token,
+          refresh_token: local.refresh_token || '',
+          user: {
+            id: payload.sub,
+            email: local.email || payload.email || '',
+            user_metadata: {
+              full_name: local.name || ''
+            }
+          }
+        };
+      }
+    }
+
+    return null;
   }
 
   async function fetchLicenseStatus(userId, accessToken) {

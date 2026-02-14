@@ -1,4 +1,5 @@
-﻿<?php
+<?php
+require_once __DIR__ . '/includes/config.php';
 
 function h(string $s): string {
     return htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
@@ -142,7 +143,7 @@ function page_header(string $title, string $path = ''): void {
             <div class="drawer-sub">Advance Lead Scrapper</div>
           </div>
         </div>
-        <button class="drawer-close" type="button" aria-label="Close menu" data-close>✕</button>
+        <button class="drawer-close" type="button" aria-label="Close menu" data-close>?</button>
       </div>
 
       <div class="drawer-links">
@@ -191,8 +192,8 @@ function page_footer(): void {
 
 <script>
 window.LEADSTAR_WEB_CONFIG = Object.assign({}, window.LEADSTAR_WEB_CONFIG || {}, {
-  supabaseUrl: <?= json_encode(SUPABASE_URL, JSON_UNESCAPED_SLASHES) ?>,
-  supabaseAnonKey: <?= json_encode(SUPABASE_ANON_KEY, JSON_UNESCAPED_SLASHES) ?>,
+  supabaseUrl: <?= json_encode(defined('SUPABASE_URL') ? SUPABASE_URL : '', JSON_UNESCAPED_SLASHES) ?>,
+  supabaseAnonKey: <?= json_encode(defined('SUPABASE_ANON_KEY') ? SUPABASE_ANON_KEY : '', JSON_UNESCAPED_SLASHES) ?>,
   siteBase: <?= json_encode(leadstar_cta_url('/'), JSON_UNESCAPED_SLASHES) ?>
 });
 </script>
@@ -204,3 +205,4 @@ window.LEADSTAR_WEB_CONFIG = Object.assign({}, window.LEADSTAR_WEB_CONFIG || {},
 require_once __DIR__ . '/includes/config.php';
 }
 ?>
+
