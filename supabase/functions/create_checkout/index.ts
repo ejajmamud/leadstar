@@ -1,5 +1,3 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
 const SUCCESS_URL = 'https://apps.ejaj.space/leadstar/account?success=1';
 const CANCEL_URL = 'https://apps.ejaj.space/leadstar/pricing';
 
@@ -29,14 +27,18 @@ Deno.serve(async (req: Request) => {
     return json({ ok: false, error: 'Missing bearer token' }, 401);
   }
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: { persistSession: false },
-    global: { headers: { Authorization: authHeader } }
+  const userResp = await fetch(SUPABASE_URL + '/auth/v1/user', {
+    method: 'GET',
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': authHeader
+    }
   });
-
-  const userResp = await supabase.auth.getUser();
-  const user = userResp.data.user;
-  if (!user || !user.email) {
+  if (!userResp.ok) {
+    return json({ ok: false, error: 'Unauthorized' }, 401);
+  }
+  const user = await userResp.json().catch(() => null) as { id?: string; email?: string } | null;
+  if (!user || !user.id || !user.email) {
     return json({ ok: false, error: 'Unauthorized' }, 401);
   }
 
