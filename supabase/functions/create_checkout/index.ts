@@ -1,23 +1,8 @@
 import Stripe from 'npm:stripe@14.25.0';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
-const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
-const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY') ?? '';
-const STRIPE_PRICE_ID = Deno.env.get('STRIPE_PRICE_ID') ?? '';
 const SUCCESS_URL = 'https://apps.ejaj.space/leadstar/account?success=1';
 const CANCEL_URL = 'https://apps.ejaj.space/leadstar/pricing';
-
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  throw new Error('Missing SUPABASE_URL or SUPABASE_ANON_KEY');
-}
-if (!STRIPE_SECRET_KEY || !STRIPE_PRICE_ID) {
-  throw new Error('Missing STRIPE_SECRET_KEY or STRIPE_PRICE_ID');
-}
-
-const stripe = new Stripe(STRIPE_SECRET_KEY, {
-  apiVersion: '2024-06-20'
-});
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -27,6 +12,22 @@ Deno.serve(async (req: Request) => {
   if (req.method !== 'POST') {
     return json({ ok: false, error: 'Method not allowed' }, 405);
   }
+
+  const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
+  const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+  const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY') ?? '';
+  const STRIPE_PRICE_ID = Deno.env.get('STRIPE_PRICE_ID') ?? '';
+
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    return json({ ok: false, error: 'Server missing Supabase secrets' }, 500);
+  }
+  if (!STRIPE_SECRET_KEY || !STRIPE_PRICE_ID) {
+    return json({ ok: false, error: 'Server missing Stripe secrets' }, 500);
+  }
+
+  const stripe = new Stripe(STRIPE_SECRET_KEY, {
+    apiVersion: '2024-06-20'
+  });
 
   const authHeader = req.headers.get('authorization') ?? req.headers.get('Authorization') ?? '';
   if (!authHeader.toLowerCase().startsWith('bearer ')) {
