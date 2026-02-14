@@ -1,4 +1,3 @@
-import Stripe from 'npm:stripe@14.25.0';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const SUCCESS_URL = 'https://apps.ejaj.space/leadstar/account?success=1';
@@ -25,10 +24,6 @@ Deno.serve(async (req: Request) => {
     return json({ ok: false, error: 'Server missing Stripe secrets' }, 500);
   }
 
-  const stripe = new Stripe(STRIPE_SECRET_KEY, {
-    apiVersion: '2024-06-20'
-  });
-
   const authHeader = req.headers.get('authorization') ?? req.headers.get('Authorization') ?? '';
   if (!authHeader.toLowerCase().startsWith('bearer ')) {
     return json({ ok: false, error: 'Missing bearer token' }, 401);
@@ -45,22 +40,36 @@ Deno.serve(async (req: Request) => {
     return json({ ok: false, error: 'Unauthorized' }, 401);
   }
 
-  const checkout = await stripe.checkout.sessions.create({
-    mode: 'subscription',
-    customer_email: user.email,
-    line_items: [{ price: STRIPE_PRICE_ID, quantity: 1 }],
-    success_url: SUCCESS_URL,
-    cancel_url: CANCEL_URL,
-    metadata: {
-      user_id: user.id
-    }
+  const body = new URLSearchParams();
+  body.append('mode', 'subscription');
+  body.append('customer_email', user.email);
+  body.append('line_items[0][price]', STRIPE_PRICE_ID);
+  body.append('line_items[0][quantity]', '1');
+  body.append('success_url', SUCCESS_URL);
+  body.append('cancel_url', CANCEL_URL);
+  body.append('metadata[user_id]', user.id);
+
+  const stripeResp = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${STRIPE_SECRET_KEY}`,
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body
   });
 
-  if (!checkout.url) {
+  const stripeJson = await stripeResp.json().catch(() => ({} as Record<string, unknown>));
+  if (!stripeResp.ok) {
+    const msg = (stripeJson as { error?: { message?: string } }).error?.message || 'Stripe checkout creation failed';
+    return json({ ok: false, error: msg }, 500);
+  }
+
+  const checkoutUrl = (stripeJson as { url?: string }).url;
+  if (!checkoutUrl) {
     return json({ ok: false, error: 'Checkout URL missing' }, 500);
   }
 
-  return json({ ok: true, url: checkout.url });
+  return json({ ok: true, url: checkoutUrl });
 });
 
 function json(data: unknown, status = 200): Response {
